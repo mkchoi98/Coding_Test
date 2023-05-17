@@ -8,12 +8,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void init(int *visited, int n)
+typedef struct Queue
+{
+    int front, rear;
+    int data[1000];
+}Queue;
+
+void init(int *arr, int n)
 {
     int i;
     
     for (i=0;i<n;i++)
-        visited[i] = 0;
+        arr[i] = 0;
 }
 
 void DFS(int **adj, int *visited, int start, int n)
@@ -35,9 +41,35 @@ void DFS(int **adj, int *visited, int start, int n)
     }
 }
 
+void BFS(int **adj, int *discovered, int start, int n)
+{
+    Queue que;
+    int i, index;
+    
+    que.front = que.rear = -1;
+    
+    discovered[start] = 1;
+    que.data[++que.rear] = start;
+    
+    while (que.front < que.rear)
+    {
+        index = que.data[++que.front];
+        printf("%d ", index+1);
+        
+        for (i=0;i<n;i++)
+        {
+            if (adj[index][i] == 1 && discovered[i] == 0)
+            {
+                discovered[i] = 1;
+                que.data[++que.rear] = i;
+            }
+        }
+    }
+}
+
 int main(int argc, const char * argv[]) {
     int n, m, v;
-    int **adj, *visited;
+    int **adj, *visited, *discovered;
     int i;
     int x, y;
     
@@ -48,8 +80,10 @@ int main(int argc, const char * argv[]) {
         adj[i] = (int *)malloc(sizeof(int)*n);
     
     visited = (int *)malloc(sizeof(int)*n);
+    discovered = (int *)malloc(sizeof(int)*n);
     
     init(visited, n);
+    init(discovered, n);
     
     for (i=0;i<m;i++)
     {
@@ -60,12 +94,15 @@ int main(int argc, const char * argv[]) {
     
     DFS(adj, visited, v-1, n);
     printf("\n");
+    BFS(adj, discovered, v-1, n);
     
     for(i=0;i<n;i++)
         free(adj[i]);
     free(adj);
     
     free(visited);
+    
+    free(discovered);
     
     return 0;
 }
