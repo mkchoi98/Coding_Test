@@ -1,2 +1,2 @@
-## Baekjoon Online Judge
+### Baekjoon Online Judge
 
