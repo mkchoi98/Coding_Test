@@ -1,4 +1,3 @@
-## 👩‍💻 for my Coding Test ...
 
 ### 📁 directory
 
