@@ -2,35 +2,37 @@
 #include <stdlib.h>
 #include <math.h>
 
-int main(int argc, const char * argv[]) {
+int main()
+{
     int r, c, t;
     int room[51][51] = {0,}, room_copy[51][51] = {0,};
-    int machine_x;
+    int machine1 = 0, machine2 = 0;
     
     scanf("%d %d %d", &r, &c, &t);
-    
+
     int i, j;
-    
+
     for (i=0;i<r;i++)
     {
         for (j=0;j<c;j++)
         {
             scanf("%d", &room[i][j]);
-            
+
             if (room[i][j] == -1)
             {
-                machine_x = i;
+                machine2 = i;
             }
         }
     }
-    
-    // 미세먼지 확산
+
+    machine1 = machine2-1;
+
     int dir_x[4] = {-1, 1, 0, 0};
     int dir_y[4] = {0, 0, -1, 1};
     int next_x, next_y;
-    
+
     int k, time;
-    
+
     for (time=0;time<t;time++)
     {
         for (i=0;i<r;i++)
@@ -40,7 +42,8 @@ int main(int argc, const char * argv[]) {
                 room_copy[i][j] = room[i][j];
             }
         }
-        
+
+        // 미세먼지 확산
         for (i=0;i<r;i++)
         {
             for (j=0;j<c;j++)
@@ -51,107 +54,78 @@ int main(int argc, const char * argv[]) {
                     {
                         next_x = i + dir_x[k];
                         next_y = j + dir_y[k];
-                        
+
                         if (next_x >= 0 && next_x < r && next_y >= 0 && next_y < c && room_copy[next_x][next_y] != -1)
                         {
-                            room[next_x][next_y] += (int)(floor((double)(room_copy[i][j]) / 5.0));
-                            room[i][j] -= (int)(floor((double)(room_copy[i][j]) / 5.0));
+                            room[next_x][next_y] += room_copy[i][j] / 5;
+                            room[i][j] -= room_copy[i][j] / 5;
                         }
                     }
                 }
             }
         }
-        
-        
-        printf("확산\n");
-        for (i=0;i<r;i++)
+
+        for (i=machine1-2;i>=0;i--)
         {
-            for (j=0;j<c;j++)
-            {
-                printf("%5d", room[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-        
-        
-        // 위쪽 공기청정기 작동
-        {
-            for (i=machine_x-2;i>=1;i--)
-            {
-                room[i][0] = room[i-1][0];
-            }
-            
-            for (i=1;i<c;i++)
-            {
-                room[0][i-1] = room[0][i];
-            }
-            
-            for (i=1;i<=machine_x-1;i++)
-            {
-                room[i-1][c-1] = room[i][c-1];
-            }
-            
-            for (i=c-2;i>=1;i--)
-            {
-                room[machine_x-1][i+1] = room[machine_x-1][i];
-            }
-            
-            room[machine_x-1][1] = 0;
+            room[i+1][0] = room[i][0];
         }
         
-        // 아래쪽 공기청정기 작동
+        for (i=1;i<c;i++)
         {
-            for (i=machine_x+2;i<r;i++)
-            {
-                room[i-1][0] = room[i][0];
-            }
-            
-            for (i=1;i<c;i++)
-            {
-                room[r-1][i-1] = room[r-1][i];
-            }
-            
-            for (i=c-1;i>=machine_x;i--)
-            {
-                room[i][c-1] = room[i-1][c-1];
-            }
-            
-            for (i=c-2;i>=1;i--)
-            {
-                room[machine_x][i+1] = room[machine_x][i];
-            }
-            
-            room[machine_x][1] = 0;
+            room[0][i-1] = room[0][i];
         }
         
-        
-        printf("청정기 작동\n");
-        for (i=0;i<r;i++)
+        for (i=1;i<=machine1;i++)
         {
-            for (j=0;j<c;j++)
-            {
-                printf("%5d", room[i][j]);
-            }
-            printf("\n");
+            room[i-1][c-1] = room[i][c-1];
         }
-        printf("\n");
+        
+        for (i=c-2;i>=1;i--)
+        {
+            room[machine1][i+1] = room[machine1][i];
+        }
+        
+        room[machine1][1] = 0;
+        
+        
+        for (i=machine2+2;i<r;i++)
+        {
+            room[i-1][0] = room[i][0];
+        }
+        
+        for (i=1;i<c;i++)
+        {
+            room[r-1][i-1] = room[r-1][i];
+        }
+        
+        for (i=r-2;i>=machine2;i--)
+        {
+            room[i+1][c-1] = room[i][c-1];
+        }
+        
+        for (i=c-2;i>=1;i--)
+        {
+            room[machine2][i+1] = room[machine2][i];
+        }
+        
+        room[machine2][1] = 0;
     }
     
     int answer = 0;
-    
-    for (i=0;i<r;i++)
-    {
-        for (j=0;j<c;j++)
+        
+        for (i=0;i<r;i++)
         {
-            if (room[i][j] > 0)
+            for (j=0;j<c;j++)
             {
-                answer += room[i][j];
+                if (room[i][j] != -1)
+                {
+                    answer += room[i][j];
+                }
             }
         }
-    }
+        
+        printf("%d", answer);
     
-    printf("%d", answer);
-
     return 0;
 }
+
