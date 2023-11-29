@@ -6,10 +6,10 @@ typedef struct Santa
 {
     int score;
     int r, c;
-    int status; // 1이면 기절
+    int status; // 1 이상이면 기절
 }Santa;
 
-void interactionSanta(Santa santa[], int arr[][51], int N, int index, int dx[], int dy[], int r, int c)
+void interactionSanta(Santa santa[], int arr[][52], int N, int index, int dx[], int dy[], int r, int c)
 {
     int temp;
     int i, j;
@@ -19,20 +19,25 @@ void interactionSanta(Santa santa[], int arr[][51], int N, int index, int dx[], 
 
     int cnt = 0;
 
-    while (arr[next_x][next_y] != 0 /*|| (next_x >= 1 && next_x <= N && next_y >= 1 && next_y <= N)*/)
+    while (arr[next_x][next_y] > 0 && (next_x >= 1 && next_x <= N && next_y >= 1 && next_y <= N))
     {
         next_x += dx[index];
         next_y += dy[index];
 
-        if (next_x < 1 && next_x > N && next_y < 1 && next_y > N)
+        cnt++;
+
+        if (next_x < 1 || next_x > N || next_y < 1 || next_y > N)
         {
-            next_x -= dx[index];
-            next_y -= dy[index];
+            next_x += dx[(index+2)%4];
+            next_y += dy[(index+2)%4];
+
+            santa[arr[next_x][next_y]].r = 0;
+            santa[arr[next_x][next_y]].c = 0;
+
+            cnt--;
 
             break;
         }
-
-        cnt++;
     }
 
     for (i=0;i<cnt;i++)
@@ -47,7 +52,7 @@ void interactionSanta(Santa santa[], int arr[][51], int N, int index, int dx[], 
     
 }
 
-void interactionRudolf(Santa santa[], int arr[][51], int N, int index, int dx[], int dy[], int r, int c)
+void interactionRudolf(Santa santa[], int arr[][52], int N, int index, int dx[], int dy[], int r, int c)
 {
     int temp;
     int i, j;
@@ -57,23 +62,26 @@ void interactionRudolf(Santa santa[], int arr[][51], int N, int index, int dx[],
 
     int cnt = 0;
 
-    while (arr[next_x][next_y] != 0 /*|| (next_x >= 1 && next_x <= N && next_y >= 1 && next_y <= N)*/)
+    while (arr[next_x][next_y] > 0 && (next_x >= 1 && next_x <= N && next_y >= 1 && next_y <= N))
     {
         next_x += dx[index];
         next_y += dy[index];
 
-        //if (next_x < 1 && next_x > N && next_y < 1 && next_y > N) break;
+        cnt++;
 
-        if (next_x < 1 && next_x > N && next_y < 1 && next_y > N)
+        if (next_x < 1 || next_x > N || next_y < 1 || next_y > N)
         {
-            next_x -= dx[index];
-            next_y -= dy[index];
+            next_x += dx[(index+4)%8];
+            next_y += dy[(index+4)%8];
+
+            santa[arr[next_x][next_y]].r = 0;
+            santa[arr[next_x][next_y]].c = 0;
+
+            cnt--;
 
             break;
         }
 
-
-        cnt++;
     }
 
     for (i=0;i<cnt;i++)
@@ -87,13 +95,13 @@ void interactionRudolf(Santa santa[], int arr[][51], int N, int index, int dx[],
     }
 }
 
-void moveRudolf(Santa santa[], int arr[][51], int N, int P, int C, int *Rr, int *Rc)
+void moveRudolf(Santa santa[], int arr[][52], int N, int P, int C, int *Rr, int *Rc)
 {
     int i, j;
     int dx[8] = {-1, -1, 0, 1, 1, 1, 0, -1};
     int dy[8] = {0, 1, 1, 1, 0, -1, -1, -1};
 
-    int minDistance = 25000;
+    int minDistance = 987654321;
     int minR, minC;
 
     for (i=1;i<=N;i++)
@@ -212,10 +220,10 @@ void moveRudolf(Santa santa[], int arr[][51], int N, int P, int C, int *Rr, int 
                 santa[i].r += C * dx[index];
                 santa[i].c += C * dy[index];
                 santa[i].score += C;
-                santa[i].status+=2; // 기절
+                santa[i].status = 2; // 기절
 
                 // 상호작용
-                if (arr[santa[i].r][santa[i].c] != 0 /*&& santa[i].r >= 1 && santa[i].r <= N && santa[i].c >= 1 && santa[i].c <= N*/)
+                if (arr[santa[i].r][santa[i].c] != 0 && santa[i].r >= 1 && santa[i].r <= N && santa[i].c >= 1 && santa[i].c <= N)
                 {
                     interactionRudolf(santa, arr, N, index, dx, dy, santa[i].r, santa[i].c);
                     arr[santa[i].r][santa[i].c] = temp;
@@ -230,10 +238,10 @@ void moveRudolf(Santa santa[], int arr[][51], int N, int P, int C, int *Rr, int 
     }
 }
 
-void moveSanta(Santa santa[], int arr[][51], int N, int P, int Rr, int Rc, int D)
+void moveSanta(Santa santa[], int arr[][52], int N, int P, int Rr, int Rc, int D)
 {
     int i, j, k;
-    int minDistance = 25000;
+    int minDistance = 987654321;
     int minIndex = -1;
     
     int dx[4] = {-1, 0, 1, 0};
@@ -245,8 +253,7 @@ void moveSanta(Santa santa[], int arr[][51], int N, int P, int Rr, int Rc, int D
     {
         if (santa[k].status > 0)
         {
-            //printf("%d\n", k);
-            santa[k].status--;
+           santa[k].status--;
             
             continue;
         }
@@ -283,7 +290,7 @@ void moveSanta(Santa santa[], int arr[][51], int N, int P, int Rr, int Rc, int D
                 santa[k].r += dx[minIndex];
                 santa[k].c += dy[minIndex];
 
-                //arr[santa[k].r][santa[k].c] = k;
+                arr[santa[k].r][santa[k].c] = k;
             }
 
             if (Rr == santa[k].r && Rc == santa[k].c) // 루돌프와 충돌 발생
@@ -295,26 +302,19 @@ void moveSanta(Santa santa[], int arr[][51], int N, int P, int Rr, int Rc, int D
                 santa[k].r += D*dx[(minIndex+2)%4];
                 santa[k].c += D*dy[(minIndex+2)%4];
 
-                //printf("%d %d\n", santa[k].r, santa[k].c);
-
-                santa[k].status += 2;
+                santa[k].status = 1;
                         
-                // 상호작용 추가
-                if (arr[santa[k].r][santa[k].c] != 0)
+                // 상호작용
+                if (arr[santa[k].r][santa[k].c] != 0 && santa[k].r >= 1 && santa[k].r <= N && santa[k].c >= 1 && santa[k].c <= N)
                 {
                     interactionSanta(santa, arr, N, (minIndex+2)%4, dx, dy, santa[k].r, santa[k].c);
                     arr[santa[k].r][santa[k].c] = temp;
                 }
 
-                else
+                else if (arr[santa[k].r][santa[k].c] == 0 && santa[k].r >= 1 && santa[k].r <= N && santa[k].c >= 1 && santa[k].c <= N)
                 {
                     arr[santa[k].r][santa[k].c] = k;
                 }
-            }
-
-            else
-            {
-                arr[santa[k].r][santa[k].c] = k;
             }
             
         }
@@ -324,8 +324,8 @@ void moveSanta(Santa santa[], int arr[][51], int N, int P, int Rr, int Rc, int D
 int main() {
     int N, M, P, C, D;
     int Rr, Rc; // 루돌프의 초기위치
-    Santa santa[31];
-    int arr[51][51] = {0, }; // 게임판
+    Santa santa[32];
+    int arr[52][52] = {0, }; // 게임판
 
     scanf("%d %d %d %d %d", &N, &M, &P, &C, &D);
     scanf("%d %d", &Rr, &Rc);
@@ -343,43 +343,25 @@ int main() {
         arr[santa[number].r][santa[number].c] = number;
     }
 
+    int cnt;
+
     for (k=0;k<M;k++)
     {
         moveRudolf(santa, arr, N, P, C, &Rr, &Rc);
-
-        // printf("%d turn\n", k+1);
-        // printf("루돌프 이동 %d %d\n", Rr, Rc);
-        // for (i=1;i<=N;i++)
-        // {
-        //     for (j=1;j<=N;j++)
-        //     {
-        //         printf("%2d", arr[i][j]);
-        //     }
-        //     printf("\n");
-        // }
-        // printf("\n");
-
         moveSanta(santa, arr, N, P, Rr, Rc, D);
 
-        // printf("산타 이동 %d %d\n", Rr, Rc);
-        // for (i=1;i<=N;i++)
-        // {
-        //     for (j=1;j<=N;j++)
-        //     {
-        //         printf("%2d", arr[i][j]);
-        //     }
-        //     printf("\n");
-        // }
-        // printf("\n");
-
+        cnt = 0;
 
         for (i=1;i<=P;i++)
         {
-            if (santa[i].r >= 1 && santa[i].r <= N && santa[i].c >= 1 && santa[i].c <= N)
+            if (santa[i].r > 0 && santa[i].r <= N && santa[i].c > 0 && santa[i].c <= N)
             {
                 santa[i].score += 1;
+                cnt++;
             }
         }
+
+        if (cnt == 0) break;
     }
 
     for (i=1;i<=P;i++)
